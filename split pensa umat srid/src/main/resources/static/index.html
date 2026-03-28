@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PENSA UMaT-SRID | Professional ChMS</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div id="auth-choice-overlay">
+      <div class="login-box" style="background: none; box-shadow: none">
+        <img
+          src="images/Pensa-logo.jpeg"
+          alt="Logo"
+          style="
+            width: 120px;
+            margin-bottom: 20px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            background: white;
+          "
+        />
+        <h2 style="color: white; margin-bottom: 30px">Select Access Level</h2>
+        <button
+          class="btn btn-gold"
+          onclick="openLogin('admin')"
+          style="
+            width: 220px;
+            margin-bottom: 15px;
+            padding: 20px;
+            font-size: 1rem;
+          "
+        >
+          ADMIN PORTAL
+        </button>
+        <br />
+        <button
+          class="btn btn-add"
+          onclick="openLogin('member')"
+          style="
+            width: 220px;
+            padding: 20px;
+            border: 1px solid var(--gold);
+            font-size: 1rem;
+          "
+        >
+          MEMBER HUB
+        </button>
+      </div>
+    </div>
+
+    <div id="login-overlay" style="display: none">
+      <div class="login-box">
+        <img src="images/Pensa-logo.jpeg" alt="Logo" />
+        <h2>Admin Access</h2>
+        <input type="email" id="adminEmail" placeholder="Admin Email" />
+        <input
+          type="password"
+          id="adminPassword"
+          placeholder="Admin Password"
+        />
+        <button class="btn btn-gold" style="width: 100%" onclick="checkLogin()">
+          Unlock Portal
+        </button>
+        <button
+          class="btn"
+          style="margin-top: 10px; color: var(--navy)"
+          onclick="showAuthChoice()"
+        >
+          ← Back
+        </button>
+        <p id="login-msg"></p>
+      </div>
+    </div>
+
+    <div id="member-login-overlay" style="display: none">
+      <div class="login-box" style="max-width: 380px; padding: 25px">
+        <img src="images/Pensa-logo.jpeg" alt="Logo" />
+        <h2 id="memberAuthTitle">Member Login</h2>
+        <div id="memberLoginForm">
+          <input type="email" id="memberEmail" placeholder="Email" />
+          <input type="password" id="memberPassword" placeholder="Password" />
+          <button
+            class="btn btn-gold"
+            id="memberLoginBtn"
+            style="width: 100%"
+            onclick="memberLogin()"
+          >
+            Login
+          </button>
+          <button
+            class="btn btn-export"
+            id="resendVerifyBtn"
+            style="width: 100%; margin-top: 10px; display: none"
+            onclick="resendVerification()"
+          >
+            Resend Verification Email
+          </button>
+          <p
+            id="memberFeedback"
+            style="margin-top: 10px; font-size: 0.9rem; color: #444"
+          ></p>
+          <p style="margin-top: 10px; font-size: 0.9rem">
+            Don’t have an account?
+            <a href="javascript:void(0)" onclick="showMemberSignup()"
+              >Sign Up</a
+            >
+          </p>
+        </div>
+        <div id="memberSignupForm" style="display: none">
+          <input type="text" id="signupName" placeholder="Full Name" />
+          <input type="email" id="signupEmail" placeholder="Email" />
+          <input type="text" id="signupPhone" placeholder="Phone Number" />
+          <input type="text" id="signupCourse" placeholder="Course of Study" />
+          <select id="signupLevel">
+            <option value="100">Level 100</option>
+            <option value="200">Level 200</option>
+            <option value="300">Level 300</option>
+            <option value="400">Level 400</option>
+            <option value="Alumni">Alumni</option>
+          </select>
+          <select id="signupWing">
+            <option value="General Member">General Member</option>
+            <option value="Echoes Of Praise">Echoes Of Praise</option>
+            <option value="Ushering">Ushering</option>
+            <option value="Evangelism">Evangelism</option>
+            <option value="Prayer Department">Prayer Department</option>
+            <option value="Literary Society OF Pensa (LSP)">
+              Literary Society OF Pensa (LSP)
+            </option>
+          </select>
+          <input
+            type="password"
+            id="signupPassword"
+            placeholder="Password (min 6)"
+          />
+          <button
+            class="btn btn-gold"
+            style="width: 100%"
+            onclick="memberSignup()"
+          >
+            Register
+          </button>
+          <p style="margin-top: 10px; font-size: 0.9rem">
+            Already have account?
+            <a href="javascript:void(0)" onclick="showMemberLogin()">Login</a>
+          </p>
+        </div>
+        <button
+          class="btn"
+          style="margin-top: 10px; color: var(--navy)"
+          onclick="showAuthChoice()"
+        >
+          ← Back
+        </button>
+        <p id="member-login-msg"></p>
+      </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <div id="welcome-screen">
+      <img src="images/Pensa-logo.jpeg" alt="PENSA Logo" />
+      <h1>PENSA UMaT-SRID</h1>
+      <p>Raising Spiritual Leaders for the Next Generation</p>
+    </div>
+    <div class="app-layout">
+      <nav id="mainNav">
+        <div class="logo-container">
+          <img src="images/Pensa-logo.jpeg" alt="Circular Logo" />
+          <h3 style="margin-top: 15px; font-size: 0.9rem; letter-spacing: 1px">
+            PENSA UMaT-SRID
+          </h3>
+        </div>
+
+        <ul>
+          <li class="active" onclick="showSection('home')">
+            <i class="fas fa-th-large"></i> Dashboard
+          </li>
+          <li onclick="showSection('members')">
+            <i class="fas fa-users"></i> Member Console
+          </li>
+          <li onclick="showSection('executives')">
+            <i class="fas fa-award"></i> Executive Archive
+          </li>
+          <li onclick="showSection('finance')">
+            <i class="fas fa-wallet"></i> Finance Hub
+          </li>
+          <li onclick="showSection('magazines')">
+            <i class="fas fa-book-open"></i> Magazines
+          </li>
+          <li onclick="showSection('history')">
+            <i class="fas fa-monument"></i> Church History
+          </li>
+        </ul>
+
+        <div class="sidebar-footer">
+          <div class="social-sidebar">
+            <a
+              href="https://www.tiktok.com/@pensa.umat.srid?_r=1&_t=ZS-94ATFh3UjcA"
+              target="_blank"
+              ><i class="fab fa-tiktok"></i
+            ></a>
+            <a
+              href="https://whatsapp.com/channel/0029VbBKqZi8aKvESAvNxQ0D"
+              target="_blank"
+              ><i class="fab fa-whatsapp"></i
+            ></a>
+            <a
+              href="https://www.facebook.com/share/1dMeeUKgbw/?mibextid=wwXIfr"
+              target="_blank"
+              ><i class="fab fa-facebook-f"></i
+            ></a>
+            <a
+              href="https://www.instagram.com/pensa.umat.srid?igsh=NjJ1YjBkb200cTVj&utm_source=qr"
+              target="_blank"
+              ><i class="fab fa-instagram"></i
+            ></a>
+          </div>
+
+          <div
+            class="logout-item"
+            onclick="location.reload()"
+            style="
+              padding: 12px 18px;
+              color: var(--red);
+              cursor: pointer;
+              font-weight: 600;
+              text-align: center;
+            "
+          >
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </div>
+        </div>
+      </nav>
+
+      <main id="mainContent">
+        <div class="marquee-container">
+          <marquee behavior="scroll" direction="left" scrollamount="6">
+            Welcome to the official PENSA UMaT-SRID Management Portal.
+            Empowering the Church, Equipping the Saints, and Reaching the World.
+            Our Victory is Through Christ!
+          </marquee>
+        </div>
+
+        <section id="home" class="section active">
+          <h1 id="dashboardTitle" style="margin-bottom: 20px">
+            Admin Overview
+          </h1>
+          <div
+            class="card admin-only"
+            style="border-top: 5px solid var(--gold); background: #fffcf0"
+          >
+            <h3 style="color: var(--navy); margin-bottom: 15px">
+              <i class="fas fa-tools"></i> System Maintenance
+            </h3>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap">
+              <button class="btn btn-export" onclick="exportBackup()">
+                <i class="fas fa-cloud-download-alt"></i> Export System Backup
+              </button>
+              <button
+                class="btn btn-gold"
+                onclick="document.getElementById('importFile').click()"
+              >
+                <i class="fas fa-cloud-upload-alt"></i> Restore from Backup
+              </button>
+              <input
+                type="file"
+                id="importFile"
+                style="display: none"
+                onchange="importBackup(this)"
+              />
+            </div>
+          </div>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+              gap: 25px;
+            "
+          >
+            <div class="card stat-card">
+              <h3>Active Members</h3>
+              <h2 id="activeCount">0</h2>
+            </div>
+            <div class="card stat-card">
+              <h3>Total Alumni</h3>
+              <h2 id="alumniCount">0</h2>
+            </div>
+            <div
+              class="card stat-card admin-only"
+              style="border-right: 4px solid var(--green)"
+            >
+              <h3>Total Funds</h3>
+              <h2 id="totalFundsDisplay">GH₵ 0.00</h2>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 25px">
+            <h3 style="margin-bottom: 15px">Resource Summary</h3>
+            <div style="display: flex; gap: 40px">
+              <p>
+                Total Magazines:
+                <strong id="magCountDisplay" style="color: var(--navy)"
+                  >0</strong
+                >
+              </p>
+              <p>
+                Archived Executives:
+                <strong id="execCountDisplay" style="color: var(--navy)"
+                  >0</strong
+                >
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="members" class="section">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 25px;
+              flex-wrap: wrap;
+              gap: 15px;
+            "
+          >
+            <h2>Member Management</h2>
+            <div class="admin-only" style="display: flex; gap: 10px">
+              <button
+                class="btn btn-add"
+                onclick="printMemberReport()"
+                style="background: var(--navy)"
+              >
+                <i class="fas fa-print"></i> Print Report
+              </button>
+              <button class="btn btn-gold" onclick="promoteAllLevels()">
+                <i class="fas fa-graduation-cap"></i> Annual Promotion
+              </button>
+              <button class="btn btn-export" onclick="exportToCSV('members')">
+                <i class="fas fa-file-csv"></i> Export CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="card admin-only">
+            <h4
+              id="memberFormTitle"
+              style="margin-bottom: 20px; color: var(--navy)"
+            >
+              Register New Member
+            </h4>
+            <div class="input-group">
+              <input type="text" id="mName" placeholder="Full Name" />
+              <input type="text" id="mPhone" placeholder="Phone" />
+              <input type="text" id="mCourse" placeholder="Course of Study" />
+              <select id="mLevel">
+                <option value="100">Level 100</option>
+                <option value="200">Level 200</option>
+                <option value="300">Level 300</option>
+                <option value="400">Level 400</option>
+                <option value="Alumni">Alumni</option>
+              </select>
+              <select id="mWing">
+                <option value="General Member">General Member</option>
+                <option value="Choir (Echoes of Praise)">Choir</option>
+                <option value="Ushering">Ushering</option>
+                <option value="Evangelism">Evangelism</option>
+                <option value="Prayer">Prayer</option>
+              </select>
+              <button class="btn btn-add" id="memberBtn" onclick="addMember()">
+                Save Member
+              </button>
+            </div>
+          </div>
+
+          <div class="tab-container">
+            <div
+              class="tab active"
+              id="tabActive"
+              onclick="toggleMemberTable('active')"
+            >
+              Active Members
+            </div>
+            <div
+              class="tab"
+              id="tabAlumni"
+              onclick="toggleMemberTable('alumni')"
+            >
+              Alumni Archive
+            </div>
+          </div>
+
+          <input
+            type="text"
+            id="memberSearch"
+            class="search-box"
+            placeholder="Quick search..."
+            onkeyup="filterTable()"
+            style="margin-bottom: 20px"
+          />
+
+          <div id="activeContainer">
+            <table id="activeTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Course</th>
+                  <th>Level</th>
+                  <th>Wing</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div id="alumniContainer" style="display: none">
+            <table id="alumniTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Course</th>
+                  <th>Status</th>
+                  <th>Wing</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="executives" class="section">
+          <h2 style="margin-bottom: 25px">Executive Legacy Archive</h2>
+          <div class="card admin-only">
+            <h4 style="margin-bottom: 20px">Archive New Leader</h4>
+            <div class="input-group">
+              <input type="text" id="eName" placeholder="Full Name" />
+              <input type="text" id="ePosition" placeholder="Position" />
+              <input type="text" id="eYear" placeholder="Service Period" />
+              <button class="btn btn-add" onclick="addExecutive()">
+                Archive Entry
+              </button>
+            </div>
+          </div>
+          <input
+            type="text"
+            id="execSearch"
+            class="search-box"
+            placeholder="Search archives..."
+            onkeyup="filterExecs()"
+            style="margin-bottom: 20px"
+          />
+          <table id="execTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Year</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section id="finance" class="section">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 25px;
+            "
+          >
+            <h2>Financial Portal</h2>
+            <div class="admin-only" style="display: flex; gap: 10px">
+              <button class="btn btn-export" onclick="generateFinancePDF()">
+                <i class="fas fa-file-pdf"></i> PDF Statement
+              </button>
+              <button class="btn btn-export" onclick="exportToCSV('finance')">
+                <i class="fas fa-file-csv"></i> Export CSV
+              </button>
+            </div>
+          </div>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 20px;
+              margin-bottom: 30px;
+            "
+          >
+            <div class="card" style="border-top: 4px solid var(--gold)">
+              <h4 style="margin-bottom: 20px">
+                <i class="fas fa-mobile-alt"></i> Pay via Momo
+              </h4>
+              <p style="margin: 0 0 10px; font-weight: 600; color: #1a237e">
+                Church MoMo:
+                <span
+                  style="
+                    background: #fff5c2;
+                    border: 1px solid #f9d976;
+                    padding: 3px 8px;
+                    border-radius: 5px;
+                  "
+                  >0555019263</span
+                >
+              </p>
+              <div class="input-group">
+                <input type="text" id="payName" placeholder="Payer Name" />
+                <input type="email" id="payEmail" placeholder="Email" />
+                <input
+                  type="number"
+                  id="payAmount"
+                  placeholder="e.g., 100.00"
+                  min="0.00"
+                  step="1"
+                  inputmode="decimal"
+                  required
+                  oninput="if (this.value < 0) this.value = 0.0;"
+                />
+                <select id="payType">
+                  <option value="Tithe">Tithe</option>
+                  <option value="Offering">Offering</option>
+                  <option value="Welfare">Welfare</option>
+                </select>
+                <button class="btn btn-gold" onclick="payWithPaystack()">
+                  Proceed to Payment
+                </button>
+              </div>
+            </div>
+            <div class="card admin-only">
+              <h4 style="margin-bottom: 20px">
+                <i class="fas fa-hand-holding-usd"></i> Record Cash
+              </h4>
+              <div class="input-group">
+                <input type="text" id="fName" placeholder="Name" />
+                <input
+                  type="number"
+                  id="fAmount"
+                  placeholder="e.g., 100.00"
+                  min="0.00"
+                  step="1"
+                  inputmode="decimal"
+                  required
+                  oninput="if (this.value < 0) this.value = 0.0;"
+                />
+                <select id="fType">
+                  <option value="Tithe">Tithe</option>
+                  <option value="Offering">Offering</option>
+                  <option value="Welfare">Welfare</option>
+                </select>
+                <button
+                  class="btn btn-add"
+                  id="financeBtn"
+                  onclick="addFinance()"
+                >
+                  Record Entry
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Transaction History</h3>
+            <table id="financeTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Ref</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="magazines" class="section">
+          <h2 style="margin-bottom: 25px">Magazines Hub</h2>
+          <div class="card admin-only">
+            <h4 style="margin-bottom: 20px">Add Publication Link</h4>
+            <div class="input-group">
+              <input
+                type="text"
+                id="magLink"
+                placeholder="Paste PDF Link (Google Drive/Dropbox)"
+              />
+              <button class="btn btn-gold" onclick="addMagLink()">
+                <i class="fas fa-link"></i> Save Link
+              </button>
+            </div>
+            <p style="font-size: 0.8rem; color: #666; margin-top: 10px">
+              Tip: Upload your PDF to Google Drive, set sharing to "Anyone with
+              link", and paste it here.
+            </p>
+          </div>
+
+          <div id="magazineList" style="margin-top: 30px"></div>
+        </section>
+
+        <section id="history" class="section">
+          <div class="history-header">
+            <h1 style="font-size: 2.5rem; color: #1a237e">
+              The Chronicles of Faith
+            </h1>
+            <p style="font-style: italic; color: #555">
+              Documenting the spiritual evolution of the PENSA UMaT-SRID Wing.
+            </p>
+          </div>
+          <div class="card admin-only" style="margin-bottom: 30px">
+            <h4 style="margin-bottom: 15px; color: var(--navy)">
+              <i class="fas fa-plus-circle"></i> Add New Historical Milestone
+            </h4>
+            <div class="input-group">
+              <input type="text" id="histYear" placeholder="Year (e.g. 2026)" />
+              <textarea
+                id="histEvent"
+                placeholder="Describe the event or era..."
+                style="
+                  width: 100%;
+                  padding: 10px;
+                  border-radius: 8px;
+                  border: 1px solid #ddd;
+                  margin-bottom: 10px;
+                "
+              ></textarea>
+              <input
+                type="file"
+                id="histImage"
+                accept="image/*"
+                style="margin-bottom: 10px"
+              />
+              <button class="btn btn-gold" onclick="addHistory()">
+                Save to Chronicles
+              </button>
+            </div>
+          </div>
+          <div class="history-timeline" id="historyTimeline">
+            <div class="history-card">
+              <div class="history-content">
+                <div class="hist-img-container">
+                  <img src="images/pic1.jpeg" alt="Foundation Era" class="hist-img" />
+                </div>
+                <div class="history-text-area">
+                  <h3
+                    style="
+                      border-left: 5px solid var(--gold);
+                      padding-left: 15px;
+                    "
+                  >
+                    1. The Divine Mandate & Inception
+                  </h3>
+                  <p>
+                    The history of PENSA UMaT-SRID traces back to a visionary
+                    move by the Church of Pentecost to shepherd students in
+                    higher institutions. It began as a small nucleus of
+                    spirit-filled students who refused to leave their
+                    Pentecostal fire behind at home.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="history-card">
+              <div class="history-content">
+                <div class="hist-img-container">
+                  <img src="images/pic2.jpeg" alt="Pioneer Leaders" class="hist-img" />
+                </div>
+                <div class="history-text-area">
+                  <h3
+                    style="
+                      border-left: 5px solid var(--gold);
+                      padding-left: 15px;
+                    "
+                  >
+                    2. The Era of the Pioneers
+                  </h3>
+                  <p>
+                    Success is built on the shoulders of giants. The Pioneer
+                    Executive Body took the mantle during a time of limited
+                    resources. They moved from hostel to hostel, room to room,
+                    evangelizing and gathering souls.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="history-card">
+              <div class="history-content">
+                <div class="hist-img-container">
+                  <img
+                    src="images/pic3.jpeg"
+                    alt="Prayer and Worship"
+                    class="hist-img"
+                  />
+                </div>
+                <div class="history-text-area">
+                  <h3
+                    style="
+                      border-left: 5px solid var(--gold);
+                      padding-left: 15px;
+                    "
+                  >
+                    3. Intensifying the Altar Fires
+                  </h3>
+                  <p>
+                    As the wing gained momentum, the focus shifted to deep
+                    spiritual grooming. Weekly "Power Encounters" and "Dawn
+                    Broadcasts" became the signature of PENSA UMaT-SRID.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="history-card">
+              <div class="history-content">
+                <div class="hist-img-container">
+                  <img
+                    src="images/pic4.jpeg"
+                    alt="Outreach and Missions"
+                    class="hist-img"
+                  />
+                </div>
+                <div class="history-text-area">
+                  <h3
+                    style="
+                      border-left: 5px solid var(--gold);
+                      padding-left: 15px;
+                    "
+                  >
+                    4. Missions and Campus Dominance
+                  </h3>
+                  <p>
+                    The wing's influence extended beyond the classroom. We began
+                    participating in massive "Rural Evangelism" trips, sending
+                    students to nearby villages to plant churches.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="history-card">
+              <div class="history-content">
+                <div class="hist-img-container">
+                  <img src="images/pic5.jpeg" alt="Digital Era" class="hist-img" />
+                </div>
+                <div class="history-text-area">
+                  <h3
+                    style="
+                      border-left: 5px solid var(--gold);
+                      padding-left: 15px;
+                    "
+                  >
+                    5. Technological & Digital Integration
+                  </h3>
+                  <p>
+                    In response to the changing times, PENSA UMaT-SRID entered
+                    its "Digital Era." We began documenting our history online
+                    and creating social media ministries.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="history-card">
+              <div class="history-content">
+                <div class="hist-img-container">
+                  <img
+                    src="images/pic6.jpeg"
+                    alt="Present Leadership"
+                    class="hist-img"
+                  />
+                </div>
+                <div class="history-text-area">
+                  <h3
+                    style="
+                      border-left: 5px solid var(--gold);
+                      padding-left: 15px;
+                    "
+                  >
+                    6. Sustaining the Eternal Flame
+                  </h3>
+                  <p>
+                    Today, under the current leadership and the grace of the
+                    Almighty, PENSA UMaT-SRID stands as a monument of God's
+                    faithfulness.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="history-card">
+              <div class="history-content">
+                <div class="hist-img-container">
+                  <img src="images/pic7.jpeg" alt="Alumni Impact" class="hist-img" />
+                </div>
+                <div class="history-text-area">
+                  <h3
+                    style="
+                      border-left: 5px solid var(--gold);
+                      padding-left: 15px;
+                    "
+                  >
+                    7. Our Living Legacy: The Alumni
+                  </h3>
+                  <p>
+                    The story doesn't end at graduation. Our Alumni are our
+                    greatest ambassadors, serving as Christian leaders in
+                    industries across the globe.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+      // Immediate UI Sync (member default for security)
+      document.body.classList.add("member-mode");
+    </script>
+  </body>
+</html>
